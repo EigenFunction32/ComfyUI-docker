@@ -173,19 +173,44 @@ docker run --rm -v comfyui-data:/target -v $(pwd):/backup alpine tar xzf /backup
 
 ## 🔄 Updates
 
-To update ComfyUI to the latest version:
-
+### Method 1: Update Everything (Recommended)
+Update ComfyUI, custom nodes, and models through the web interface:
+1. Access http://localhost:8188
+2. Click **Manager** → **Update All**
+3. Restart the container to apply changes:
 ```bash
+docker restart comfyui
+```
+### Method 2: Update ComfyUI Core Only
+
+For ComfyUI core updates only:
+```bash
+
 # Stop container
 docker stop comfyui
 
-# Rebuild image (from project directory)
+# Rebuild image with latest ComfyUI
 cd ComfyUI-docker
 docker build -t comfyui-custom .
 
 # Restart container
 docker start comfyui
 ```
+### Update Verification
+
+After any update, verify everything works:
+```bash
+# Check logs for errors
+docker logs comfyui
+
+# Test GPU functionality
+docker exec comfyui python3 -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}')"
+```
+
+### Update Strategy:
+
+  - **Daily:** Use Method 1 (Update All) for routine updates
+  - **Weekly:** Use Method 2 for major ComfyUI releases
 
 ## 🗂️ Project Structure
 
