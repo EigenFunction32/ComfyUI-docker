@@ -4,7 +4,9 @@
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for stable diffusion workflows.
+Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for unlimited workflows.
+
+<img width="2403" height="1243" alt="image" src="https://github.com/user-attachments/assets/97ae5e4f-7c49-47af-88a1-ab8f24812581" />
 
 ## 🚀 Features
 
