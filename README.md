@@ -1,4 +1,4 @@
-# ComfyUI Docker
+# ComfyUI-Dockerized
 
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
