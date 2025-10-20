@@ -62,7 +62,7 @@ If you need to build from a different directory:
 docker build -t comfyui-custom /path/to/ComfyUI-docker
 
 # Or using git URL (no clone needed)
-docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-docker.git
+docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-dockerizd.git
 ```
 
 ## ⚙️ Customization
@@ -211,7 +211,7 @@ docker start comfyui
 ## 🗂️ Project Structure
 
 ```
-ComfyUI-docker/
+ComfyUI-dockerized/
 ├── Dockerfile          # Multi-stage build with Python 3.12 + ComfyUI Manager
 ├── README.md           # This file
 └── LICENSE             # MIT License
