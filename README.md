@@ -35,7 +35,6 @@ cd ComfyUI-docker
 docker build -t comfyui-custom .
 
 # or if you need to build from a different directory:
-
 # 1. Build from specific path
 docker build -t comfyui-custom /path/to/ComfyUI-docker
 
