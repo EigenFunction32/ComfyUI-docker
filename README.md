@@ -28,7 +28,7 @@ Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for endl
 ### 1. Clone and Build
 ```bash
 # Clone this repository
-git clone https://github.com/EigenFunction32/ComfyUI-docker.git
+git clone https://github.com/EigenFunction32/ComfyUI-dockerized.git
 cd ComfyUI-docker
 
 # Build the image (must be run in the same directory as Dockerfile)
