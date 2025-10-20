@@ -122,51 +122,22 @@ RUN pip install --pre torch torchvision torchaudio --index-url https://download.
 3. Use **Model Manage** to download models directly
 4. Install custom nodes via **Custom Node Manager**
 
-### Method 2: Docker Commands
+### Method 2: Copy Files to Running Container
 ```bash
-# Copy models to volume
-docker run --rm -v comfyui-data:/target -v $(pwd):/source alpine cp /source/model.safetensors /target/models/checkpoints/
+# Copy single file to checkpoints
+docker cp /path/to/model.safetensors comfyui:/app/ComfyUI/user/models/checkpoints/
 
-# Verify models
-docker run --rm -v comfyui-data:/data alpine find /data/models -name "*.safetensors"
+# Copy single file
+docker cp /path/to/file.safetensors comfyui:/app/ComfyUI/user/models/.../
+
+# Copy entire folder recursively
+docker cp /path/to/models/ comfyui:/app/ComfyUI/user/models/
 ```
+### Method 3: Docker Commands (Container Not Running)
+bash
 
-### Folder Structure in Volume:
-```
-user/
-├── models/
-│   ├── checkpoints/     # Main models (.safetensors, .ckpt)
-│   ├── vae/             # VAE models
-│   ├── loras/           # LoRA models
-│   ├── controlnet/      # ControlNet models
-│   ├── clip/            # CLIP models
-│   └── upscale_models/  # Upscaling models
-├── input/               # Input files
-└── output/              # Generated images
-```
-
-## 🔍 Accessing Volume Data
-
-Docker volumes are not directly visible in the host filesystem. To access your data:
-
-### Explore volume content:
-```bash
-# Enter the container
-docker exec -it comfyui bash
-ls -la /app/ComfyUI/user/
-
-# Or use temporary container
-docker run --rm -it -v comfyui-data:/data alpine ls -la /data
-```
-
-### Copy files to/from volume:
-```bash
-# Backup volume to current directory
-docker run --rm -v comfyui-data:/source -v $(pwd):/backup alpine cp -r /source/* /backup/
-
-# Restore files to volume  
-docker run --rm -v comfyui-data:/target -v $(pwd):/source alpine cp -r /source/* /target/
-```
+# Copy single model to volume
+docker run --rm -v comfyui-data:/target -v $(pwd):/source alpine cp /source/model.safetensors /target/models/.../
 
 ## ✅ Verification
 
