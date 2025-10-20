@@ -145,7 +145,7 @@ Container structure:
 ### GPU Not Detected
 ```bash
 # Verify NVIDIA Container Toolkit
-docker run --rm --runtime=nvidia nvidia/cuda:11.8-base nvidia-smi
+docker run --rm --runtime=nvidia nvidia/cuda:12.9-base nvidia-smi
 ```
 
 ### Permission Issues
