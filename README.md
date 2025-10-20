@@ -142,10 +142,10 @@ docker cp /path/to/file.safetensors comfyui:/app/ComfyUI/user/models/.../
 docker cp /path/to/models/ comfyui:/app/ComfyUI/user/models/
 ```
 ### Method 3: Docker Commands (Container Not Running)
-bash
-
+```bash
 # Copy single model to volume
 docker run --rm -v comfyui-data:/target -v $(pwd):/source alpine cp /source/model.safetensors /target/models/.../
+```
 
 ## ✅ Verification
 
