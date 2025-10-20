@@ -1,5 +1,4 @@
-# ComfyUI-docker
-One-click ComfyUI Docker deployment with GPU support. Automated setup, volume persistence, and secure non-root operation. Ideal for AI workflows.
+# ComfyUI Docker
 
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
@@ -24,18 +23,31 @@ Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for stab
 
 ## 🛠️ Quick Start
 
-### 1. Build the Image
-bash
+### 1. Clone and Build
+```bash
+# Clone this repository
+git clone https://github.com/EigenFunction32/ComfyUI-docker.git
+cd ComfyUI-docker
+
+# Build the image (must be run in the same directory as Dockerfile)
 docker build -t comfyui-custom .
 
-2. Create Data Volume
-bash
+# or if you need to build from a different directory:
 
+# 1. Build from specific path
+docker build -t comfyui-custom /path/to/ComfyUI-docker
+
+# 2. Or using git URL (no clone needed)
+docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-docker.git
+```
+
+### 2. Create Data Volume
+```bash
 docker volume create comfyui-data
+```
 
-3. Run Container
-bash
-
+### 3. Run Container
+```bash
 docker run -d \
   --name comfyui \
   --restart unless-stopped \
@@ -43,15 +55,16 @@ docker run -d \
   -v comfyui-data:/app/ComfyUI/user \
   --gpus all \
   comfyui-custom
+```
 
-4. Access UI
-
+### 4. Access UI
 Open http://localhost:8188 in your browser.
-⚙️ Customization
+
+## ⚙️ Customization
 
 The Dockerfile is designed to be easily customizable:
-dockerfile
 
+```dockerfile
 # Change Python version
 ARG PYTHON_VERSION=3.12.3
 
@@ -63,44 +76,43 @@ RUN apt-get install -y your-package-here
 
 # Install additional Python packages
 RUN pip install additional-package
+```
 
 Common customizations:
+- **Python version** - Modify `PYTHON_VERSION` build arg
+- **System packages** - Add to the `apt-get install` list
+- **Python packages** - Add `pip install` commands after requirements
+- **Port configuration** - Change `COMFYUI_PORT` environment variable
 
-    Python version - Modify PYTHON_VERSION build arg
-
-    System packages - Add to the apt-get install list
-
-    Python packages - Add pip install commands after requirements
-
-    Port configuration - Change COMFYUI_PORT environment variable
-
-✅ Verification
+## ✅ Verification
 
 Check if everything is working:
-bash
 
+```bash
 # View logs
 docker logs comfyui
 
 # Test GPU detection
 docker exec comfyui python3 -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else None}')"
+```
 
-💾 Data Management
+## 💾 Data Management
 
 Your models and configurations are stored in the Docker volume:
-bash
 
+```bash
 # Backup data
 docker run --rm -v comfyui-data:/source -v $(pwd):/backup alpine tar czf /backup/comfyui-backup-$(date +%Y%m%d).tar.gz -C /source .
 
 # Restore backup
 docker run --rm -v comfyui-data:/target -v $(pwd):/backup alpine tar xzf /backup/comfyui-backup-YYYYMMDD.tar.gz -C /target
+```
 
-🔄 Updates
+## 🔄 Updates
 
 To update ComfyUI to the latest version:
-bash
 
+```bash
 # Stop container
 docker stop comfyui
 
@@ -109,45 +121,49 @@ docker build -t comfyui-custom .
 
 # Restart container
 docker start comfyui
+```
 
-🗂️ Project Structure
-text
+## 🗂️ Project Structure
 
+```
 ComfyUI-docker/
 ├── Dockerfile          # Multi-stage build with Python 3.12
-├── README.md          # This file
-└── LICENSE           # MIT License
+├── README.md           # This file
+└── LICENSE             # MIT License
 
 Container structure:
 /app/ComfyUI/
-├── models/           # Checkpoints, LoRAs, VAEs
-├── input/            # Input files
-├── output/           # Generated images
-└── user/             # Configurations (mounted volume)
+├── models/            # Checkpoints, LoRAs, VAEs
+├── input/             # Input files
+├── output/            # Generated images
+└── user/              # Configurations (mounted volume)
+```
 
-🐛 Troubleshooting
-GPU Not Detected
-bash
+## 🐛 Troubleshooting
 
+### GPU Not Detected
+```bash
 # Verify NVIDIA Container Toolkit
 docker run --rm --runtime=nvidia nvidia/cuda:11.8-base nvidia-smi
+```
 
-Permission Issues
+### Permission Issues
+Ensure the `comfyui-data` volume is correctly mounted to `/app/ComfyUI/user`
 
-Ensure the comfyui-data volume is correctly mounted to /app/ComfyUI/user
-Port Already in Use
-
+### Port Already in Use
 Change the host port:
-bash
-
+```bash
 docker run -p 8080:8188 ...  # Use port 8080 instead
+```
 
-📜 License
+## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-🤝 Contributing
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
 
 Feel free to open issues or submit pull requests for improvements.
 
-Happy Generating! 🎨
+---
 
+**Happy Generating!** 🎨
