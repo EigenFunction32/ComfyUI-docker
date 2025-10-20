@@ -5,6 +5,8 @@ One-click ComfyUI Docker deployment with GPU support. Automated setup, volume pe
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for stable diffusion workflows.
+
 ## 🚀 Features
 
 - **Full GPU Acceleration** - NVIDIA CUDA support out of the box
@@ -23,7 +25,7 @@ One-click ComfyUI Docker deployment with GPU support. Automated setup, volume pe
 ## 🛠️ Quick Start
 
 ### 1. Build the Image
-```bash
+bash
 docker build -t comfyui-custom .
 
 2. Create Data Volume
@@ -148,3 +150,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Feel free to open issues or submit pull requests for improvements.
 
 Happy Generating! 🎨
+
