@@ -64,7 +64,7 @@ If you need to build from a different directory:
 docker build -t comfyui-custom /path/to/ComfyUI-docker
 
 # Or using git URL (no clone needed)
-docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-dockerizd.git
+docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-dockerized.git
 ```
 ## ⚙️ Customization
 
