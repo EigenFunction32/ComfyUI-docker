@@ -4,6 +4,8 @@
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<img width="2403" height="1243" alt="image" src="https://github.com/user-attachments/assets/fb7a5f62-509c-443b-9172-00e9a7ba8a6e" />
+
 Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for endless workflows with integrated ComfyUI Manager.
 
 ## 🚀 Features
@@ -64,7 +66,6 @@ docker build -t comfyui-custom /path/to/ComfyUI-docker
 # Or using git URL (no clone needed)
 docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-dockerizd.git
 ```
-
 ## ⚙️ Customization
 
 The Dockerfile is designed to be easily customizable for different hardware and requirements:
@@ -77,7 +78,7 @@ ARG PYTHON_VERSION=3.12.3
 ARG COMFYUI_PORT=8188
 
 # Change PyTorch/CUDA version (see available versions below)
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cuXXX
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # Add system dependencies
 RUN apt-get install -y your-package-here
@@ -97,14 +98,17 @@ RUN pip install additional-package
 
 | CUDA Version | PyTorch Command | Notes |
 |--------------|-----------------|-------|
-| **CUDA 12.9** | `pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu129` |
+| **CUDA 13.0** | `pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu130` | Requires PyTorch nightly builds |
 | **CUDA 12.8** | `pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128` | **Required for Blackwell GPUs (RTX 50xx)**. Requires NVIDIA 570+ drivers |
 | **CUDA 12.1** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121` | Standard for RTX 40/30 series |
 | **CUDA 11.8** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118` | Compatible with older GPUs |
 | **CPU Only** | `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu` | For systems without GPU |
 
-**Community tested versions:**
-Some Docker projects also report support for **CUDA 12.9** and **CUDA 13.0**. For these and other versions, check availability on the [official PyTorch website](https://pytorch.org/).
+**Example for CUDA 13.0:**
+```dockerfile
+# Replace the PyTorch installation line in Dockerfile:
+RUN pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu130
+```
 
 **Example for CUDA 12.8 (RTX 50xx):**
 ```dockerfile
@@ -112,7 +116,11 @@ Some Docker projects also report support for **CUDA 12.9** and **CUDA 13.0**. Fo
 RUN pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 ```
 
-**Important Note:** Ensure your NVIDIA drivers support the chosen CUDA version. For **GTX 10xx** GPUs, for example, a version like CUDA 12.6.3 is recommended. Check compatibility at [NVIDIA CUDA Documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html).
+**Important Notes:**
+- **NVIDIA Drivers**: Ensure your NVIDIA drivers support the chosen CUDA version
+- **Nightly Builds**: CUDA 12.8 and 13.0 require PyTorch nightly builds
+- **Stability**: For production use, CUDA 12.1 or 11.8 with stable PyTorch builds is recommended
+- **Compatibility**: Check driver compatibility at [NVIDIA CUDA Documentation](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)
 
 ## 📥 Loading Models
 
