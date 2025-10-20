@@ -212,24 +212,6 @@ docker exec comfyui python3 -c "import torch; print(f'PyTorch: {torch.__version_
   - **Daily:** Use Method 1 (Update All) for routine updates
   - **Weekly:** Use Method 2 for major ComfyUI releases
 
-## 🗂️ Project Structure
-
-```
-ComfyUI-dockerized/
-├── Dockerfile          # Multi-stage build with Python 3.12 + ComfyUI Manager
-├── README.md           # This file
-└── LICENSE             # MIT License
-
-Container structure:
-/app/ComfyUI/
-├── custom_nodes/
-│   └── ComfyUI-Manager/  # Pre-installed manager
-├── models/              # Checkpoints, LoRAs, VAEs
-├── input/               # Input files
-├── output/              # Generated images
-└── user/                # Configurations (mounted volume)
-```
-
 ## 🐛 Troubleshooting
 
 ### Build Issues
