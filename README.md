@@ -1,4 +1,4 @@
-# ComfyUI-Dockerized
+# ComfyUI-Docker
 
 [![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)](https://www.docker.com/)
 [![NVIDIA GPU](https://img.shields.io/badge/GPU-NVIDIA-green.svg)](https://www.nvidia.com/)
@@ -30,7 +30,7 @@ Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for endl
 ### 1. Clone and Build
 ```bash
 # Clone this repository
-git clone https://github.com/EigenFunction32/ComfyUI-dockerized.git
+git clone https://github.com/EigenFunction32/ComfyUI-docker.git
 cd ComfyUI-docker
 
 # Build the image (must be run in the same directory as Dockerfile)
@@ -64,7 +64,7 @@ If you need to build from a different directory:
 docker build -t comfyui-custom /path/to/ComfyUI-docker
 
 # Or using git URL (no clone needed)
-docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-dockerized.git
+docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-docker.git
 ```
 ## ⚙️ Customization
 
