@@ -25,7 +25,7 @@ ARG COMFYUI_PORT=8188
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/opt/python3.12/bin:${PATH}" \
     COMFYUI_PORT=${COMFYUI_PORT} \
-    PIP_CACHE_DIR=/app/.cache/pip
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Dipendenze sistema
 RUN apt-get update && apt-get install -y \
@@ -40,30 +40,32 @@ RUN groupadd -r comfyuser && useradd -r -g comfyuser -d /app comfyuser
 WORKDIR /app
 COPY --from=builder /opt/python3.12 /opt/python3.12
 
-# Imposta i permessi PRIMA di switchare utente
-RUN mkdir -p /app/.cache/pip /app/.local && \
-    chown -R comfyuser:comfyuser /app
+# Assicurati che pip sia disponibile e aggiornato
+RUN pip install --upgrade pip setuptools wheel
 
-# Installa PyTorch e ComfyUI come comfyuser
-USER comfyuser
-
-# Installa PyTorch
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129
-
-# Installa ComfyUI e dipendenze
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
+# Installa PyTorch e ComfyUI
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129 && \
+    git clone https://github.com/comfyanonymous/ComfyUI.git && \
     cd ComfyUI && pip install -r requirements.txt
 
-# Installa GitPython
-RUN pip install GitPython
+# Installa le dipendenze di ComfyUI Manager PRIMA di clonarlo
+RUN pip install toml GitPython requests packaging
 
 # Installa ComfyUI Manager
 RUN cd ComfyUI && \
     git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
 
-# Crea directory user per il volume
-USER root
-RUN mkdir -p /app/ComfyUI/user && chown -R comfyuser:comfyuser /app/ComfyUI
+# Installa le dipendenze specifiche di ComfyUI Manager
+RUN cd ComfyUI/custom_nodes/ComfyUI-Manager && \
+    pip install -r requirements.txt
+
+# Crea directory user per il volume e imposta permessi
+RUN mkdir -p /app/ComfyUI/user && \
+    chown -R comfyuser:comfyuser /app/ComfyUI && \
+    # Crea link simbolico per assicurarsi che pip sia disponibile come comando
+    ln -sf /opt/python3.12/bin/pip /usr/local/bin/pip
+
+# Esegui come utente non-privilegiato
 USER comfyuser
 
 EXPOSE ${COMFYUI_PORT}
