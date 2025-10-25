@@ -13,10 +13,10 @@ Dockerized ComfyUI with full NVIDIA GPU support. One-command deployment for endl
 - **Full GPU Acceleration** - NVIDIA CUDA support out of the box
 - **ComfyUI Manager Pre-installed** - Manage custom nodes and models seamlessly
 - **Multi-CUDA Version Support** - Compatible with CUDA 13.X, 12.X, 11.X and more
-- **Data Persistence** - Docker volumes for models and configurations  
+- **Complete Data Persistence** - Single Docker volume for all ComfyUI data
 - **Security First** - Non-root container execution
-- **Auto-Setup** - Automatic directory structure creation
-- **Customizable Build** - Dockerfile easily configurable for specific needs
+- **Auto Directory Structure** - ComfyUI manages its own folders automatically
+- **Fixed Permission Issues** - No more UV cache or pip errors
 - **Minimal Overhead** - Custom Python 3.12 build on Ubuntu 24.04
 
 ## 📋 Prerequisites
@@ -39,7 +39,7 @@ docker build -t comfyui-custom .
 
 ### 2. Create Data Volume
 ```bash
-docker volume create comfyui-data
+docker volume create comfyui_data
 ```
 
 ### 3. Run Container
@@ -48,7 +48,7 @@ docker run -d \
   --name comfyui \
   --restart unless-stopped \
   -p 8188:8188 \
-  -v comfyui-data:/app/ComfyUI/user \
+  -v comfyui_data:/app/ComfyUI \
   --gpus all \
   comfyui-custom
 ```
@@ -66,6 +66,7 @@ docker build -t comfyui-custom /path/to/ComfyUI-docker
 # Or using git URL (no clone needed)
 docker build -t comfyui-custom https://github.com/EigenFunction32/ComfyUI-docker.git
 ```
+
 ## ⚙️ Customization
 
 The Dockerfile is designed to be easily customizable for different hardware and requirements:
@@ -133,18 +134,22 @@ RUN pip install --pre torch torchvision torchaudio --index-url https://download.
 ### Method 2: Copy Files to Running Container
 ```bash
 # Copy single file to checkpoints
-docker cp /path/to/model.safetensors comfyui:/app/ComfyUI/user/models/checkpoints/
+docker cp /path/to/model.safetensors comfyui:/app/ComfyUI/models/checkpoints/
 
-# Copy single file
-docker cp /path/to/file.safetensors comfyui:/app/ComfyUI/user/models/.../
+# Copy single VAE file
+docker cp /path/to/vae.safetensors comfyui:/app/ComfyUI/models/vae/
 
 # Copy entire folder recursively
-docker cp /path/to/models/ comfyui:/app/ComfyUI/user/models/
+docker cp /path/to/models/ comfyui:/app/ComfyUI/models/
 ```
+
 ### Method 3: Docker Commands (Container Not Running)
 ```bash
 # Copy single model to volume
-docker run --rm -v comfyui-data:/target -v $(pwd):/source alpine cp /source/model.safetensors /target/models/.../
+docker run --rm -v comfyui-complete:/target -v $(pwd):/source alpine cp /source/model.safetensors /target/models/checkpoints/
+
+# Copy VAE model
+docker run --rm -v comfyui-complete:/target -v $(pwd):/source alpine cp /source/vae.safetensors /target/models/vae/
 ```
 
 ## ✅ Verification
@@ -161,14 +166,14 @@ docker exec comfyui python3 -c "import torch; print(f'PyTorch: {torch.__version_
 
 ## 💾 Data Management
 
-Your models and configurations are stored in the Docker volume:
+All your data is stored in the Docker volume:
 
 ```bash
-# Backup data (compressed)
-docker run --rm -v comfyui-data:/source -v $(pwd):/backup alpine tar czf /backup/comfyui-backup-$(date +%Y%m%d).tar.gz -C /source .
+# Backup complete data (compressed)
+docker run --rm -v comfyui-complete:/source -v $(pwd):/backup alpine tar czf /backup/comfyui-backup-$(date +%Y%m%d).tar.gz -C /source .
 
 # Restore backup
-docker run --rm -v comfyui-data:/target -v $(pwd):/backup alpine tar xzf /backup/comfyui-backup-YYYYMMDD.tar.gz -C /target
+docker run --rm -v comfyui-complete:/target -v $(pwd):/backup alpine tar xzf /backup/comfyui-backup-YYYYMMDD.tar.gz -C /target
 ```
 
 ## 🔄 Updates
@@ -181,11 +186,10 @@ Update ComfyUI, custom nodes, and models through the web interface:
 ```bash
 docker restart comfyui
 ```
-### Method 2: Update ComfyUI Core Only
 
+### Method 2: Update ComfyUI Core Only
 For ComfyUI core updates only:
 ```bash
-
 # Stop container
 docker stop comfyui
 
@@ -196,8 +200,8 @@ docker build -t comfyui-custom .
 # Restart container
 docker start comfyui
 ```
-### Update Verification
 
+### Update Verification
 After any update, verify everything works:
 ```bash
 # Check logs for errors
@@ -207,25 +211,29 @@ docker logs comfyui
 docker exec comfyui python3 -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}')"
 ```
 
-### Update Strategy:
-
-  - **Daily:** Use Method 1 (Update All) for routine updates
-  - **Weekly:** Use Method 2 for major ComfyUI releases
+**Update Strategy:**
+- **Daily**: Use Method 1 (Update All) for routine updates
+- **Weekly**: Use Method 2 for major ComfyUI releases
 
 ## 🐛 Troubleshooting
 
-### Build Issues
-- **Error**: "Dockerfile not found" - Make sure you're in the correct directory
-- **Error**: "Permission denied" - Ensure proper directory ownership in Dockerfile
+### Common Issues Fixed in v2.0:
+- ✅ **UV cache permission errors** - Fixed directory permissions
+- ✅ **"pip not found" errors** - Added symbolic links and PATH fixes
+- ✅ **Missing dependencies** - Pre-installed all ComfyUI Manager requirements
+- ✅ **Models not found** - Correct volume mount point
 
-### GPU Not Detected
+### Quick Solutions:
 ```bash
-# Verify NVIDIA Container Toolkit
+# If ComfyUI Manager shows errors
+docker restart comfyui
+
+# Check volume structure
+docker exec comfyui ls -la /app/ComfyUI/models/
+
+# Verify GPU detection
 docker run --rm --runtime=nvidia nvidia/cuda:11.8-base nvidia-smi
 ```
-
-### Permission Issues
-Ensure the `comfyui-data` volume is correctly mounted to `/app/ComfyUI/user`
 
 ### Port Already in Use
 Change the host port:
@@ -233,8 +241,13 @@ Change the host port:
 docker run -p 8080:8188 ...  # Use port 8080 instead
 ```
 
-### ComfyUI Manager Issues
-If custom nodes fail to install, check that GitPython is properly installed in the container.
+## 🎯 What's New in v2.0
+
+- **Complete Volume Persistence** - Single volume for all ComfyUI data
+- **Fixed Permission Issues** - No more UV cache or pip errors
+- **Automatic Directory Structure** - ComfyUI manages folders automatically
+- **ComfyUI Manager Ready** - Pre-installed and pre-configured
+- **Production Ready** - Stable and reliable for daily use
 
 ## 📜 License
 
@@ -247,3 +260,5 @@ Feel free to open issues or submit pull requests for improvements.
 ---
 
 **Happy Generating!** 🎨
+
+*First startup may take 1-2 minutes as ComfyUI creates its directory structure automatically.*
