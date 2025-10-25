@@ -25,7 +25,8 @@ ARG COMFYUI_PORT=8188
 ENV DEBIAN_FRONTEND=noninteractive \
     PATH="/opt/python3.12/bin:${PATH}" \
     COMFYUI_PORT=${COMFYUI_PORT} \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_CACHE_DIR=/app/.cache/uv
 
 # Dipendenze sistema
 RUN apt-get update && apt-get install -y \
@@ -40,30 +41,44 @@ RUN groupadd -r comfyuser && useradd -r -g comfyuser -d /app comfyuser
 WORKDIR /app
 COPY --from=builder /opt/python3.12 /opt/python3.12
 
+# Crea SOLO le directory cache PRIMA di installare ComfyUI
+RUN mkdir -p /app/.cache /app/.local && \
+    chown -R comfyuser:comfyuser /app/.cache /app/.local
+
 # Assicurati che pip sia disponibile e aggiornato
 RUN pip install --upgrade pip setuptools wheel
 
-# Installa PyTorch e ComfyUI
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129 && \
-    git clone https://github.com/comfyanonymous/ComfyUI.git && \
-    cd ComfyUI && pip install -r requirements.txt
+# Installa PyTorch con CUDA
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu129
 
-# Installa le dipendenze di ComfyUI Manager PRIMA di clonarlo
-RUN pip install toml GitPython requests packaging
+# Installa ComfyUI in directory temporanea e poi sposta
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI-temp && \
+    cd /app/ComfyUI-temp && pip install -r requirements.txt && \
+    mv /app/ComfyUI-temp /app/ComfyUI
 
-# Installa ComfyUI Manager
-RUN cd ComfyUI && \
-    git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
+# Installa TUTTE le dipendenze di ComfyUI Manager
+RUN pip install toml GitPython requests packaging opencv-python pillow numpy scipy websockets aiohttp psutil
 
-# Installa le dipendenze specifiche di ComfyUI Manager
-RUN cd ComfyUI/custom_nodes/ComfyUI-Manager && \
+# Installa ComfyUI Manager nel percorso CORRETTO
+RUN cd /app/ComfyUI/custom_nodes && \
+    git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
+    cd ComfyUI-Manager && \
     pip install -r requirements.txt
 
-# Crea directory user per il volume e imposta permessi
-RUN mkdir -p /app/ComfyUI/user && \
-    chown -R comfyuser:comfyuser /app/ComfyUI && \
-    # Crea link simbolico per assicurarsi che pip sia disponibile come comando
-    ln -sf /opt/python3.12/bin/pip /usr/local/bin/pip
+# Installa uv esplicitamente per evitare errori
+RUN pip install uv
+
+# Crea SOLO la configurazione di sicurezza per ComfyUI Manager
+RUN mkdir -p /app/ComfyUI/user/default/ComfyUI-Manager && \
+    echo -e "[manager]\nsecurity_level = weak" > /app/ComfyUI/user/default/ComfyUI-Manager/config.ini
+
+# Imposta i permessi FINALI su tutto
+RUN chown -R comfyuser:comfyuser /app/ComfyUI
+
+# Crea link simbolici per i comandi Python
+RUN ln -sf /opt/python3.12/bin/pip /usr/local/bin/pip && \
+    ln -sf /opt/python3.12/bin/python3 /usr/local/bin/python3 && \
+    ln -sf /opt/python3.12/bin/python3 /usr/local/bin/python
 
 # Esegui come utente non-privilegiato
 USER comfyuser
